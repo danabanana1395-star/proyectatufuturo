@@ -1,0 +1,354 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Admin – Proyecta Tu Futuro</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style>
+:root{
+  --purple:#7c3aed;--purple-light:#a855f7;--purple-pale:#f3e8ff;
+  --bg:#0d0520;--card:#1a0933;--border:rgba(192,132,252,0.2);
+  --text:#e9d5ff;--muted:#a78bfa;--white:#fff;
+  --green:#10b981;--yellow:#f59e0b;--red:#ef4444;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'Segoe UI',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;}
+
+/* LOGIN */
+#loginPage{display:flex;align-items:center;justify-content:center;min-height:100vh;
+  background:radial-gradient(ellipse at top,#1a0933,#0d0520);}
+.login-box{
+  background:var(--card);border:1.5px solid var(--border);
+  border-radius:24px;padding:40px 36px;max-width:380px;width:90%;
+  text-align:center;box-shadow:0 0 60px rgba(124,58,237,.3);
+}
+.login-box h1{font-size:26px;color:#e9d5ff;margin-bottom:6px;}
+.login-box p{color:var(--muted);font-size:13px;margin-bottom:24px;}
+.login-box input{
+  width:100%;padding:12px 16px;
+  background:rgba(255,255,255,.07);border:1.5px solid var(--border);
+  border-radius:50px;color:var(--text);font-size:14px;
+  font-family:inherit;outline:none;margin-bottom:12px;transition:border .2s;
+}
+.login-box input:focus{border-color:var(--purple-light);}
+.login-box input::placeholder{color:#6b5fa0;}
+.login-error{color:#f87171;font-size:13px;margin-top:8px;}
+
+/* BOTONES */
+.btn{
+  background:linear-gradient(135deg,var(--purple-light),var(--purple));
+  color:#fff;padding:11px 24px;border:none;border-radius:50px;
+  font-weight:700;font-size:14px;font-family:inherit;cursor:pointer;
+  transition:all .25s;box-shadow:0 4px 20px rgba(124,58,237,.4);
+}
+.btn:hover{transform:translateY(-2px);box-shadow:0 8px 28px rgba(124,58,237,.5);}
+.btn-sm{padding:6px 14px;font-size:12px;}
+.btn-outline{background:transparent;border:1.5px solid var(--purple-light);color:var(--purple-light);}
+.btn-outline:hover{background:rgba(168,85,247,.15);}
+
+/* DASHBOARD */
+#dashboard{display:none;}
+.topbar{
+  background:rgba(26,9,51,.95);backdrop-filter:blur(10px);
+  padding:14px 24px;display:flex;align-items:center;justify-content:space-between;
+  border-bottom:1px solid var(--border);position:sticky;top:0;z-index:100;
+}
+.topbar-title{font-size:18px;font-weight:700;color:#e9d5ff;}
+.topbar-title span{color:var(--purple-light);}
+.topbar-right{display:flex;gap:10px;align-items:center;}
+.topbar-right small{color:var(--muted);font-size:12px;}
+
+.main{padding:24px;max-width:1200px;margin:0 auto;}
+
+/* TABS */
+.tabs{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:20px;
+  background:rgba(26,9,51,.6);padding:8px;border-radius:14px;border:1px solid var(--border);}
+.tab{padding:8px 18px;border-radius:8px;border:none;background:transparent;
+  font-family:inherit;font-size:13px;font-weight:500;cursor:pointer;
+  color:var(--muted);transition:all .2s;}
+.tab.active{background:var(--purple);color:#fff;}
+.tab:hover:not(.active){background:rgba(168,85,247,.15);color:#e9d5ff;}
+
+/* STAT CARDS */
+.stats-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:14px;margin-bottom:24px;}
+.stat-card{
+  background:var(--card);border:1px solid var(--border);
+  border-radius:14px;padding:18px;text-align:center;
+  box-shadow:0 4px 20px rgba(0,0,0,.3);
+}
+.stat-card .num{font-size:36px;font-weight:800;color:var(--purple-light);}
+.stat-card .lbl{font-size:11px;color:var(--muted);margin-top:4px;text-transform:uppercase;letter-spacing:.5px;}
+
+/* TABLA */
+.table-wrap{overflow-x:auto;border-radius:14px;border:1px solid var(--border);}
+table{width:100%;border-collapse:collapse;}
+th{background:rgba(124,58,237,.4);color:#e9d5ff;padding:11px 14px;text-align:left;font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;}
+th:first-child{border-radius:14px 0 0 0;}th:last-child{border-radius:0 14px 0 0;}
+td{padding:11px 14px;border-bottom:1px solid var(--border);font-size:13px;vertical-align:middle;color:#d8b4fe;}
+tr:last-child td{border-bottom:none;}
+tr:hover td{background:rgba(124,58,237,.1);}
+
+/* CHART */
+.chart-wrap{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:20px;margin-bottom:24px;}
+.chart-wrap h3{color:#e9d5ff;font-size:14px;margin-bottom:14px;}
+.chart-wrap canvas{max-height:260px;}
+
+/* BADGES */
+.pct-bar{display:flex;align-items:center;gap:8px;}
+.pct-fill{height:6px;border-radius:3px;background:linear-gradient(90deg,var(--purple-light),var(--purple));min-width:4px;}
+
+/* SECCIÓN */
+.section{display:none;}.section.active{display:block;}
+.sec-title{font-size:17px;font-weight:700;color:#e9d5ff;margin-bottom:14px;}
+
+/* FILTROS */
+.toolbar{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:14px;align-items:center;}
+.toolbar input,.toolbar select{
+  padding:8px 12px;background:rgba(255,255,255,.07);
+  border:1.5px solid var(--border);border-radius:8px;
+  color:#e9d5ff;font-size:13px;font-family:inherit;outline:none;
+}
+.toolbar input::placeholder{color:#6b5fa0;}
+.toolbar input:focus,.toolbar select:focus{border-color:var(--purple-light);}
+
+/* LOADER */
+.loader{text-align:center;padding:30px;color:var(--muted);}
+.empty{text-align:center;color:var(--muted);padding:24px;font-size:13px;}
+
+@media(max-width:600px){.stats-grid{grid-template-columns:1fr 1fr;}.main{padding:14px;}}
+</style>
+</head>
+<body>
+
+<!-- LOGIN -->
+<div id="loginPage">
+  <div class="login-box">
+    <h1>🎓 Proyecta Tu Futuro</h1>
+    <p>Panel de Administración</p>
+    <input type="text" id="loginUser" placeholder="Usuario" value="admin"
+           onkeydown="if(event.key==='Enter')document.getElementById('loginPass').focus()">
+    <input type="password" id="loginPass" placeholder="Contraseña"
+           onkeydown="if(event.key==='Enter')doLogin()">
+    <button class="btn" style="width:100%;margin-top:4px;" onclick="doLogin()">Entrar</button>
+    <div class="login-error" id="loginError"></div>
+  </div>
+</div>
+
+<!-- DASHBOARD -->
+<div id="dashboard">
+  <div class="topbar">
+    <div class="topbar-title">🎓 Proyecta Tu <span>Futuro</span></div>
+    <div class="topbar-right">
+      <small id="adminLabel"></small>
+      <button class="btn btn-sm" onclick="exportarCSV()">⬇ CSV</button>
+      <button class="btn btn-sm btn-outline" onclick="logout()">Salir</button>
+    </div>
+  </div>
+
+  <div class="main">
+
+    <!-- Tabs -->
+    <div class="tabs">
+      <button class="tab active" onclick="setTab('resumen')">📊 Resumen</button>
+      <button class="tab" onclick="setTab('resultados')">📋 Todos los resultados</button>
+    </div>
+
+    <!-- RESUMEN -->
+    <div id="sec-resumen" class="section active">
+      <div class="stats-grid">
+        <div class="stat-card"><div class="num" id="st-total">–</div><div class="lbl">Tests realizados</div></div>
+      </div>
+      <div class="chart-wrap">
+        <h3>Top carreras más recomendadas</h3>
+        <canvas id="chartCarreras"></canvas>
+      </div>
+      <div class="sec-title">Actividad reciente</div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>#</th><th>Nombre</th><th>Carrera recomendada</th><th>Match</th><th>Fecha</th></tr></thead>
+          <tbody id="tbRecientes"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- TODOS LOS RESULTADOS -->
+    <div id="sec-resultados" class="section">
+      <div class="toolbar">
+        <input type="text" id="buscador" placeholder="Buscar por nombre o carrera…" oninput="filtrar()">
+        <button class="btn btn-sm" onclick="exportarCSV()">⬇ Exportar CSV</button>
+      </div>
+      <div class="table-wrap" id="tblResultados"><div class="loader">Cargando…</div></div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+const API = '';
+let TOKEN = '';
+let _todos = [];
+let _chart = null;
+
+// ── LOGIN ──
+async function doLogin() {
+  const u = document.getElementById('loginUser').value.trim();
+  const p = document.getElementById('loginPass').value;
+  const errEl = document.getElementById('loginError');
+  errEl.textContent = '';
+  try {
+    const res  = await fetch(API + '/api/admin/login', {
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({ usuario: u, password: p })
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error);
+    TOKEN = data.token;
+    document.getElementById('adminLabel').textContent = '👤 ' + u;
+    document.getElementById('loginPage').style.display  = 'none';
+    document.getElementById('dashboard').style.display  = 'block';
+    cargarStats();
+  } catch(err) { errEl.textContent = err.message; }
+}
+
+function logout() {
+  TOKEN = '';
+  document.getElementById('loginPage').style.display  = 'flex';
+  document.getElementById('dashboard').style.display  = 'none';
+  document.getElementById('loginPass').value = '';
+}
+
+// ── TABS ──
+function setTab(name) {
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+  const tabs = ['resumen','resultados'];
+  document.querySelectorAll('.tab')[tabs.indexOf(name)].classList.add('active');
+  document.getElementById('sec-' + name).classList.add('active');
+  if (name === 'resultados') cargarTodos();
+}
+
+// ── STATS ──
+async function cargarStats() {
+  try {
+    const res  = await fetch(API + '/api/admin/stats', { headers: { Authorization: 'Bearer ' + TOKEN } });
+    const data = await res.json();
+    document.getElementById('st-total').textContent = data.total;
+
+    // Gráfica carreras
+    const ctx = document.getElementById('chartCarreras').getContext('2d');
+    if (_chart) _chart.destroy();
+    const labels = data.topCarr.map(c => c.carrera.length > 30 ? c.carrera.substring(0,30)+'…' : c.carrera);
+    const values = data.topCarr.map(c => c.total);
+    const colors = ['#a855f7','#7c3aed','#06b6d4','#10b981','#f59e0b','#ef4444','#ec4899','#84cc16'];
+    _chart = new Chart(ctx, {
+      type: 'bar',
+      data: {
+        labels,
+        datasets:[{ label:'Veces recomendada', data: values,
+          backgroundColor: colors.slice(0, values.length),
+          borderRadius: 8, borderWidth: 0 }]
+      },
+      options:{
+        indexAxis: 'y',
+        plugins:{ legend:{display:false} },
+        scales:{
+          x:{ beginAtZero:true, ticks:{ precision:0, color:'#a78bfa' }, grid:{color:'rgba(192,132,252,.1)'} },
+          y:{ ticks:{ color:'#d8b4fe', font:{size:11} }, grid:{display:false} }
+        },
+        responsive:true, maintainAspectRatio:false
+      }
+    });
+
+    // Tabla recientes
+    const tbody = document.getElementById('tbRecientes');
+    tbody.innerHTML = data.recientes.map((r,i) => `
+      <tr>
+        <td>${i+1}</td>
+        <td><strong style="color:#e9d5ff;">${esc(r.nombre)}</strong></td>
+        <td>${esc(r.carrera1)}</td>
+        <td>
+          <div class="pct-bar">
+            <div class="pct-fill" style="width:${r.pct1*0.8}px;max-width:80px;"></div>
+            <span style="color:var(--purple-light);font-weight:700;">${r.pct1}%</span>
+          </div>
+        </td>
+        <td style="color:var(--muted);">${fmt(r.creado_en)}</td>
+      </tr>`).join('') || '<tr><td colspan="5" class="empty">Sin resultados aún.</td></tr>';
+  } catch(err) { console.error(err); }
+}
+
+// ── TODOS LOS RESULTADOS ──
+async function cargarTodos() {
+  document.getElementById('tblResultados').innerHTML = '<div class="loader">Cargando…</div>';
+  try {
+    const res  = await fetch(API + '/api/admin/resultados', { headers: { Authorization: 'Bearer ' + TOKEN } });
+    const data = await res.json();
+    _todos = data.datos;
+    renderTabla(_todos);
+  } catch(err) {
+    document.getElementById('tblResultados').innerHTML = '<div class="empty">Error al cargar.</div>';
+  }
+}
+
+function renderTabla(filas) {
+  const cont = document.getElementById('tblResultados');
+  if (!filas.length) { cont.innerHTML = '<div class="empty">Sin registros.</div>'; return; }
+  cont.innerHTML = `<table>
+    <thead><tr>
+      <th>#</th><th>Nombre</th><th>Edad</th>
+      <th>🥇 Carrera 1</th><th>%</th>
+      <th>🥈 Carrera 2</th><th>%</th>
+      <th>🥉 Carrera 3</th><th>%</th>
+      <th>Fecha</th>
+    </tr></thead>
+    <tbody>${filas.map((r,i) => `
+      <tr>
+        <td style="color:var(--muted);">${i+1}</td>
+        <td><strong style="color:#e9d5ff;">${esc(r.nombre)}</strong></td>
+        <td style="color:var(--muted);">${r.edad||'–'}</td>
+        <td>${esc(r.carrera1||'–')}</td>
+        <td><span style="color:var(--purple-light);font-weight:700;">${r.pct1||0}%</span></td>
+        <td>${esc(r.carrera2||'–')}</td>
+        <td><span style="color:#06b6d4;font-weight:700;">${r.pct2||0}%</span></td>
+        <td>${esc(r.carrera3||'–')}</td>
+        <td><span style="color:#10b981;font-weight:700;">${r.pct3||0}%</span></td>
+        <td style="color:var(--muted);font-size:12px;">${fmt(r.creado_en)}</td>
+      </tr>`).join('')}
+    </tbody></table>`;
+}
+
+function filtrar() {
+  const q = document.getElementById('buscador').value.toLowerCase();
+  const f = _todos.filter(r =>
+    r.nombre.toLowerCase().includes(q) ||
+    (r.carrera1||'').toLowerCase().includes(q)
+  );
+  renderTabla(f);
+}
+
+async function exportarCSV() {
+  try {
+    const res = await fetch(API + '/api/admin/exportar', { headers: { Authorization: 'Bearer ' + TOKEN } });
+    const blob = await res.blob();
+    const url  = URL.createObjectURL(blob);
+    const a    = document.createElement('a');
+    a.href = url; a.download = 'proyecta_resultados.csv'; a.click();
+    URL.revokeObjectURL(url);
+  } catch(err) { alert('Error al exportar.'); }
+}
+
+function fmt(str) {
+  if (!str) return '–';
+  const d = new Date(str);
+  return d.toLocaleDateString('es-MX',{day:'2-digit',month:'short',year:'numeric'})
+       + ' ' + d.toLocaleTimeString('es-MX',{hour:'2-digit',minute:'2-digit'});
+}
+function esc(s) {
+  return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+document.getElementById('loginPass').addEventListener('keydown', e => { if(e.key==='Enter') doLogin(); });
+</script>
+</body>
+</html>
